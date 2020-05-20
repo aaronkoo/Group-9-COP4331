@@ -14,19 +14,37 @@
 	} 
 	else
 	{
-        $sql = 'INSERT INTO Users 
+        if( doesUserExist( $username ) > 0)
+        {
+            $sql = 'INSERT INTO Users 
                 (ID,FirstName,LastName,Login,Password) 
                 VALUES 
                 (DEFAULT, "'.$firstName.'", "'.$lastName.'", "'.$username.'", "'.$password.'")';
 
-		if( $result = $conn->query($sql) != TRUE )
-		{
-			returnWithError( $conn->error );
-		}
-		$conn->close();
+            if( $result = $conn->query($sql) != TRUE )
+            {
+                returnWithError( $conn->error );
+            }
+        }
+        else
+        {
+            returnWithError ( "Username already exists. Please choose another." );
+        }
+
+        $conn->close();        
 	}
 	
-	returnWithError("");
+    returnWithError("");
+    
+    function doesUserExist( $username )
+    {
+        $query = "select * FROM Users WHERE username = ?";
+        $paramType = "ss";
+        $paramArray = array($username);
+        $userCount = $this->ds->numRows($query, $paramType, $paramArray);
+    
+        return $userCount;
+    }
 	
 	function getRequestInfo()
 	{
